@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   auth-service:
     build: ./backend/auth-service
@@ -11,6 +12,28 @@ services:
       - /app/node_modules
     depends_on:
       - mongo
+
+  user-service:
+    build: ./backend/user-service
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./backend/user-service/.env
+    volumes:
+      - ./backend/user-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+
+  route-service:
+    build: ./backend/route-service
+    ports:
+      - "3003:3003"
+    env_file:
+      - ./backend/route-service/.env
+    volumes:
+      - ./backend/route-service:/app
+      - /app/node_modules
 
   mongo:
     image: mongo
