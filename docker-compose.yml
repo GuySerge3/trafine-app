@@ -34,6 +34,34 @@ services:
     volumes:
       - ./backend/route-service:/app
       - /app/node_modules
+    depends_on:
+      - mongo
+      - incident-service
+      - alert-service
+
+  incident-service:
+    build: ./backend/incident-service
+    ports:
+      - "3004:3004"
+    env_file:
+      - ./backend/incident-service/.env
+    volumes:
+      - ./backend/incident-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+
+  alert-service:
+    build: ./backend/alert-service
+    ports:
+      - "3005:3005"
+    env_file:
+      - ./backend/alert-service/.env
+    volumes:
+      - ./backend/alert-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
 
   mongo:
     image: mongo
