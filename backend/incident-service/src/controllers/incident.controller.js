@@ -1,6 +1,5 @@
 const Incident = require('../models/incident.model');
-const userId = req.user.id; 
-const { confirmed } = req.body;
+ 
 
 exports.reportIncident = async (req, res) => {
   try {

@@ -38,6 +38,8 @@ services:
       - mongo
       - incident-service
       - alert-service
+      - stats-service
+      - ai-service
 
   incident-service:
     build: ./backend/incident-service
@@ -60,6 +62,25 @@ services:
     volumes:
       - ./backend/alert-service:/app
       - /app/node_modules
+    depends_on:
+      - mongo
+
+  stats-service:
+    build: ./backend/stats-service
+    ports:
+      - "3006:3006"
+    env_file:
+      - ./backend/stats-service/.env
+    volumes:
+      - ./backend/stats-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+
+  ai-service:
+    build: ./backend/ai-service
+    ports:
+      - "5000:5000"
     depends_on:
       - mongo
 
