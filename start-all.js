@@ -23,6 +23,17 @@ services.forEach(service => {
   console.log(`🚀 Lancement de ${service.name} depuis ${servicePath}`);
 });
 
+// 🚪 Démarrer le gateway-service (Node.js + HTTPS)
+const gatewayPath = path.join(__dirname, 'backend', 'gateway');
+const gateway = spawn('npm', ['run', 'dev'], {
+  cwd: gatewayPath,
+  shell: true,
+  stdio: 'inherit',
+  env: { ...process.env }
+});
+
+console.log(`🚪 Lancement de gateway-service depuis ${gatewayPath}`);
+
 // 🤖 Lancer le ai-service en Python (FastAPI)
 const aiServicePath = path.join(__dirname, 'backend', 'ai-service');
 const python = process.platform === 'win32' ? 'python' : 'python3';

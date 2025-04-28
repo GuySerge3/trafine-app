@@ -2,11 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { reportIncident, getAll,getIncidentsInBbox,confirmIncident } = require('../controllers/incident.controller');
 const verifyToken = require('../middlewares/verifyToken');
+const checkRole = require('../middlewares/checkRole');
 
-router.post('/', reportIncident);
+
+router.post('/', verifyToken, checkRole('user', 'moderator', 'admin'), reportIncident);
 router.get('/', getAll);
-router.get('/', getIncidentsInBbox); 
+router.get('/bbox', getIncidentsInBbox); 
 router.post('/:id/confirm',verifyToken, confirmIncident);
+router.delete('/:id', verifyToken, checkRole('moderator', 'admin'), deleteIncident);
 
 
 

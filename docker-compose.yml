@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  gateway-service:
+    build: ./backend/gateway
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/gateway/.env
+    volumes:
+      - ./backend/gateway:/app
+      - /app/node_modules
+    depends_on:
+      - auth-service
+      - user-service
+      - route-service
+      - incident-service
+      - alert-service
+      - stats-service
+      - ai-service
+    restart: unless-stopped
+
   auth-service:
     build: ./backend/auth-service
     ports:
