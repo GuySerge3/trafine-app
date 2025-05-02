@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { reportIncident, getAll,getIncidentsInBbox,confirmIncident } = require('../controllers/incident.controller');
+const { reportIncident, getAll,getIncidentsInBbox,confirmIncident,deleteIncident } = require('../controllers/incident.controller');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 

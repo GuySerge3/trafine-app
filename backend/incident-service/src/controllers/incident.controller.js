@@ -31,6 +31,22 @@ exports.getIncidentsInBbox = async (req, res) => {
 
   res.json(incidents);
 };
+exports.deleteIncident = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const incident = await Incident.findById(id);
+    if (!incident) {
+      return res.status(404).json({ message: 'Incident introuvable' });
+    }
+
+    await Incident.findByIdAndDelete(id);
+    res.json({ message: 'Incident supprimé avec succès' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.confirmIncident = async (req, res) => {
   const { id } = req.params;
   const { userId, confirmed } = req.body;
