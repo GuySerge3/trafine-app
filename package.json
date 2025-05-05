@@ -1,5 +1,9 @@
 {
+  "proxy": "http://localhost:3001",
   "devDependencies": {
     "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "react-router-dom": "^7.5.3"
   }
 }
