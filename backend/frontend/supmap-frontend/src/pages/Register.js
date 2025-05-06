@@ -20,7 +20,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch("https://localhost:3000/api/auth/register", {
+      const response = await fetch("http://localhost:3001/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -54,7 +54,7 @@ const Register = () => {
           <Form.Group controlId="email">
             <Form.Label>Email</Form.Label>
             <Form.Control
-              type="email"
+              type="text"
               placeholder="Entrez votre email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

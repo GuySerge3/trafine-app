@@ -1,102 +1,132 @@
-import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Polyline, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { getRoute } from "../components/RouteService";
-import IncidentReport from "../components/IncidentReport";
-import AlertNotification from "../components/AlertNotification";
-import QRGenerator from "../components/QRGenerator";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  GoogleMap,
+  DirectionsRenderer,
+  useJsApiLoader,
+} from "@react-google-maps/api";
+import "../styles/MapView.css";
+
+const containerStyle = {
+  width: "100%",
+  height: "100vh",
+};
+
+const center = { lat: 48.8566, lng: 2.3522 };
 
 const MapView = () => {
-  const [routeOptions, setRouteOptions] = useState([]);
-  const [selectedRoute, setSelectedRoute] = useState(null);
-  const [incidents, setIncidents] = useState([]);
-  const [alerts, setAlerts] = useState([]);
-  const [avoidTolls, setAvoidTolls] = useState(false);
-  const start = { lat: 48.8566, lon: 2.3522 }; // Paris
-  const end = { lat: 48.8584, lon: 2.2945 }; // Tour Eiffel
+  const [directions, setDirections] = useState(null);
+  const [steps, setSteps] = useState([]);
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const originRef = useRef(null);
+  const destinationRef = useRef(null);
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: ["places"],
+  });
 
   useEffect(() => {
-    const fetchRoutes = async () => {
-      const routes = await getRoute(start, end, avoidTolls);
-      console.log(routes); // Vérifie la structure des données reçues
+    if (isLoaded && originRef.current && destinationRef.current) {
+      new window.google.maps.places.Autocomplete(originRef.current);
+      new window.google.maps.places.Autocomplete(destinationRef.current);
+    }
+  }, [isLoaded]);
 
-      if (routes && routes.length > 0 && routes[0].geometry && routes[0].geometry.coordinates) {
-        setRouteOptions(routes);
-        setSelectedRoute(routes[0].geometry.coordinates); // Définir selectedRoute seulement si les données sont valides
-      } else {
-        console.error("Aucune route disponible ou données incorrectes.");
+  const handleRouteSearch = (e) => {
+    e.preventDefault();
+    const service = new window.google.maps.DirectionsService();
+    service.route(
+      {
+        origin,
+        destination,
+        travelMode: window.google.maps.TravelMode.DRIVING,
+        avoidTolls: true,
+      },
+      (result, status) => {
+        if (status === "OK") {
+          setDirections(result);
+          const newSteps = result.routes[0].legs[0].steps.map((step, index) => ({
+            id: index,
+            instruction: step.instructions,
+            distance: step.distance.text,
+          }));
+          setSteps(newSteps);
+        } else {
+          alert("Itinéraire non trouvé.");
+        }
       }
-    };
-
-    fetchRoutes();
-  }, [avoidTolls]);
-
-  const handleReportIncident = (incident) => {
-    setIncidents([...incidents, incident]);
-    setAlerts([...alerts, incident]); // Ajouter l'alerte à la liste
+    );
   };
 
-  const handleRouteSelection = (route) => {
-    setSelectedRoute(route.geometry.coordinates);
+  const handleStart = () => {
+    alert("Navigation démarrée !");
   };
 
   return (
-    <div>
-      <h2>Carte en temps réel</h2>
-      <div>
-        <label>
-          Éviter les péages :
-          <input
-            type="checkbox"
-            checked={avoidTolls}
-            onChange={() => setAvoidTolls(!avoidTolls)}
-          />
-        </label>
-      </div>
-
-      <MapContainer center={[48.8566, 2.3522]} zoom={13} style={{ height: "500px", width: "100%" }}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {/* Rendu conditionnel de la Polyline */}
-        {selectedRoute && selectedRoute.length > 0 && (
-          <Polyline positions={selectedRoute} color="blue" />
-        )}
-        {/* Rendu des incidents */}
-        {incidents.map((incident, index) => (
-          <Marker key={index} position={[48.8566, 2.3522]}>
-            <Popup>
-              <h4>{incident.type}</h4>
-              <p>{incident.description}</p>
-              <p>{incident.time}</p>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-
-      {/* Rendu des alertes */}
-      {alerts.map((alert, index) => (
-        <AlertNotification key={index} incident={alert} />
-      ))}
-
-      {/* Formulaire de déclaration d'incidents */}
-      <IncidentReport onReport={handleReportIncident} />
-
-      {/* Générateur de QR Code */}
-      <QRGenerator route={selectedRoute} />
-
-      {/* Liste des itinéraires disponibles */}
-      <div>
-        <h3>Choisissez votre itinéraire :</h3>
-        <ul>
-          {routeOptions.map((route, index) => (
-            <li key={index} onClick={() => handleRouteSelection(route)}>
-              {route.legs[0].summary} - {route.duration / 60} minutes
-            </li>
-          ))}
+    <div className="map-container">
+      {/* NAVBAR */}
+      <nav className="navbar">
+        <div className="navbar-logo">Trafine</div>
+        <ul className="navbar-menu">
+          <li>Accueil</li>
+          <li>Statistiques</li>
+          <li>QR Code</li>
+          <li>Profil</li>
         </ul>
+      </nav>
+
+      {/* ITINERAIRE FORM */}
+      <div className="route-search">
+        <form onSubmit={handleRouteSearch}>
+          <input
+            type="text"
+            placeholder="Origine"
+            ref={originRef}
+            onChange={(e) => setOrigin(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Destination"
+            ref={destinationRef}
+            onChange={(e) => setDestination(e.target.value)}
+            required
+          />
+          <button type="submit">Rechercher</button>
+        </form>
+        {directions && <button onClick={handleStart}>Démarrer</button>}
       </div>
+
+      {/* MAP */}
+      {isLoaded && (
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={center}
+          zoom={13}
+        >
+          {directions && (
+            <DirectionsRenderer
+              directions={directions}
+              options={{ suppressMarkers: false }}
+            />
+          )}
+        </GoogleMap>
+      )}
+
+      {/* ALERT PANEL POUR LES ÉTAPES */}
+      {steps.length > 0 && (
+        <div className="alert-panel">
+          <h4>Étapes du trajet :</h4>
+          <ul>
+            {steps.map((step) => (
+              <li key={step.id}>
+                <span dangerouslySetInnerHTML={{ __html: step.instruction }} /> ({step.distance})
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

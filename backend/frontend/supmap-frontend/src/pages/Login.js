@@ -13,7 +13,7 @@ const Login = () => {
     setErrorMessage(null);
 
     try {
-      const response = await fetch("https://localhost:3000/api/auth/login", {
+      const response = await fetch("http://localhost:3001/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -46,11 +46,11 @@ const Login = () => {
           <Form.Group controlId="email">
             <Form.Label>Email</Form.Label>
             <Form.Control
-              type="email"
+              type="text"
               placeholder="Entrez votre email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+            
             />
           </Form.Group>
 

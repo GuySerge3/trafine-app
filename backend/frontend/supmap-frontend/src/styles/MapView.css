@@ -1,0 +1,133 @@
+.map-container {
+    font-family: 'Segoe UI', sans-serif;
+    position: relative;
+    height: 100vh;
+    background: #f4f6f9;
+  }
+  
+  /* NAVBAR */
+  .navbar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    background: #1e1e2f;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 10;
+  }
+  
+  .navbar-logo {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  .navbar-menu {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .navbar-menu li {
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .navbar-menu li:hover {
+    color: #00bcd4;
+  }
+  
+  /* FLOATING BUTTONS */
+  .floating-buttons {
+    position: absolute;
+    bottom: 120px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10;
+  }
+  
+  .floating-buttons button {
+    background: #1e1e2f;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+  }
+  
+  .floating-buttons button:hover {
+    background: #00bcd4;
+  }
+  
+  /* ALERTS */
+  .alert-panel {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    z-index: 5;
+  }
+  
+  /* INCIDENT REPORT */
+  .incident-section {
+    padding: 60px 20px 20px;
+    background: white;
+  }
+  
+  .route-search {
+    position: absolute;
+    top: 70px;
+    left: 20px;
+    z-index: 10;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
+  }
+  
+  .route-search input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  
+  .route-search button {
+    background-color: #1e1e2f;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .route-search button:hover {
+    background-color: #00bcd4;
+  }
+  
+  .alert-panel ul {
+    padding-left: 20px;
+    margin: 0;
+  }
+  
+  .alert-panel li {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  
