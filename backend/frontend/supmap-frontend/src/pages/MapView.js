@@ -18,6 +18,7 @@ const MapView = () => {
   const [steps, setSteps] = useState([]);
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [incident, setIncident] = useState("");
   const originRef = useRef(null);
   const destinationRef = useRef(null);
 
@@ -63,6 +64,12 @@ const MapView = () => {
     alert("Navigation démarrée !");
   };
 
+  const handleIncidentSubmit = () => {
+    if (incident.trim() === "") return;
+    alert(`Incident signalé : ${incident}`);
+    setIncident("");
+  };
+
   return (
     <div className="map-container">
       {/* NAVBAR */}
@@ -76,7 +83,7 @@ const MapView = () => {
         </ul>
       </nav>
 
-      {/* ITINERAIRE FORM */}
+      {/* FORMULAIRE ITINÉRAIRE */}
       <div className="route-search">
         <form onSubmit={handleRouteSearch}>
           <input
@@ -98,7 +105,7 @@ const MapView = () => {
         {directions && <button onClick={handleStart}>Démarrer</button>}
       </div>
 
-      {/* MAP */}
+      {/* GOOGLE MAP */}
       {isLoaded && (
         <GoogleMap
           mapContainerStyle={containerStyle}
@@ -114,7 +121,7 @@ const MapView = () => {
         </GoogleMap>
       )}
 
-      {/* ALERT PANEL POUR LES ÉTAPES */}
+      {/* ÉTAPES DU TRAJET */}
       {steps.length > 0 && (
         <div className="alert-panel">
           <h4>Étapes du trajet :</h4>
@@ -127,6 +134,25 @@ const MapView = () => {
           </ul>
         </div>
       )}
+
+      {/* BOUTONS FLOTTANTS */}
+      <div className="floating-buttons">
+        <button onClick={() => alert("Scanner QR Code")}>QR Code</button>
+        <button onClick={() => alert("Voir Statistiques")}>Statistiques</button>
+        <button onClick={() => alert("Tableau de bord")}>Dashboard</button>
+      </div>
+
+      {/* SIGNALER UN INCIDENT */}
+      <div className="incident-section">
+        <h4>Signaler un incident</h4>
+        <input
+          type="text"
+          placeholder="Ex: bouchon, accident, route barrée..."
+          value={incident}
+          onChange={(e) => setIncident(e.target.value)}
+        />
+        <button onClick={handleIncidentSubmit}>Envoyer</button>
+      </div>
     </div>
   );
 };
