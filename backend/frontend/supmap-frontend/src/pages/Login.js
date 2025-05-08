@@ -1,81 +1,96 @@
 import React, { useState } from "react";
-import { Button, Container, Form, Alert } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
+import { MapPin, Mail, Lock, User } from "lucide-react";
+import "../styles/Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setErrorMessage(null);
-
     try {
       const response = await fetch("http://localhost:3001/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erreur de connexion");
-      }
-
+      if (!response.ok) throw new Error("Identifiants invalides");
       const data = await response.json();
       localStorage.setItem("token", data.token);
       navigate("/map");
     } catch (error) {
-      console.error("Erreur :", error.message);
-      setErrorMessage(error.message);
+      alert(error.message);
     }
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center min-vh-100">
-      <div className="card p-4" style={{ maxWidth: "400px", width: "100%" }}>
-        <h2 className="text-center mb-4">Connexion</h2>
-        {errorMessage && (
-          <Alert variant="danger" className="text-center">{errorMessage}</Alert>
-        )}
-        <Form onSubmit={handleLogin}>
-          <Form.Group controlId="email">
-            <Form.Label>Email</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Entrez votre email"
+    <div className="login-wrapper">
+      {/* HEADER */}
+      <header className="header">
+        <div className="logo">
+          <MapPin size={20} color="#3b82f6" />
+          <span><strong>SUPMAP</strong></span>
+        </div>
+        <nav className="nav">
+        
+        </nav>
+        <div>
+        
+        </div>
+      </header>
+
+      {/* FORM */}
+      <main className="login-glass-wrapper">
+        <form className="login-glass" onSubmit={handleLogin}>
+          <div className="login-avatar">
+            <User size={40} />
+          </div>
+          <h2>Connexion</h2>
+
+          <div className="input-group">
+            <Mail className="icon" />
+            <input
+              type="email"
+              placeholder="Adresse email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            
+              required
             />
-          </Form.Group>
+          </div>
 
-          <Form.Group controlId="password" className="mt-3">
-            <Form.Label>Mot de passe</Form.Label>
-            <Form.Control
+          <div className="input-group">
+            <Lock className="icon" />
+            <input
               type="password"
-              placeholder="Entrez votre mot de passe"
+              placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </Form.Group>
+          </div>
 
-          <Button variant="primary" type="submit" className="mt-4 w-100">
-            Se connecter
-          </Button>
-        </Form>
+          <button type="submit" className="btn-login">Se connecter</button>
 
-        <div className="text-center mt-3">
-          <span>Vous n'avez pas de compte ? </span>
-          <Link to="/register">Inscrivez-vous</Link>
-        </div>
-      </div>
-    </Container>
+          <div className="login-options">
+            <label>
+              <input type="checkbox" /> Se souvenir de moi
+            </label>
+            <Link to="/forgot">Mot de passe oublié ?</Link>
+          </div>
+
+          <div className="register-link">
+            Pas de compte ? <Link to="/register">Créer un compte</Link>
+          </div>
+        </form>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <p>© {new Date().getFullYear()} SUPMAP. Tous droits réservés.</p>
+      </footer>
+    </div>
   );
 };
 

@@ -1,133 +1,114 @@
 .map-container {
-    font-family: 'Segoe UI', sans-serif;
-    position: relative;
-    height: 100vh;
-    background: #f4f6f9;
-  }
-  
-  /* NAVBAR */
-  .navbar {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 60px;
-    background: #1e1e2f;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    z-index: 10;
-  }
-  
-  .navbar-logo {
-    font-weight: bold;
-    font-size: 1.2rem;
-  }
-  
-  .navbar-menu {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-  }
-  
-  .navbar-menu li {
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  
-  .navbar-menu li:hover {
-    color: #00bcd4;
-  }
-  
-  /* FLOATING BUTTONS */
-  .floating-buttons {
-    position: absolute;
-    bottom: 120px;
-    right: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    z-index: 10;
-  }
-  
-  .floating-buttons button {
-    background: #1e1e2f;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.3s;
-  }
-  
-  .floating-buttons button:hover {
-    background: #00bcd4;
-  }
-  
-  /* ALERTS */
-  .alert-panel {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    max-height: 150px;
-    overflow-y: auto;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px 20px;
-    z-index: 5;
-  }
-  
-  /* INCIDENT REPORT */
-  .incident-section {
-    padding: 60px 20px 20px;
-    background: white;
-  }
-  
-  .route-search {
-    position: absolute;
-    top: 70px;
-    left: 20px;
-    z-index: 10;
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 300px;
-  }
-  
-  .route-search input {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 14px;
-  }
-  
-  .route-search button {
-    background-color: #1e1e2f;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .route-search button:hover {
-    background-color: #00bcd4;
-  }
-  
-  .alert-panel ul {
-    padding-left: 20px;
-    margin: 0;
-  }
-  
-  .alert-panel li {
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-  
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  font-size: 1.5em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-logo span {
+  letter-spacing: 1px;
+}
+
+.mappin-icon {
+  color: #4caf50;
+}
+
+.navbar-menu {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-menu li {
+  cursor: pointer;
+}
+
+.icon-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-menu li.icon-item {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.navbar-menu li.icon-item:hover {
+  color: #4caf50;
+}
+
+.route-search {
+  padding: 20px;
+  background-color: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.route-search form {
+  display: flex;
+  gap: 10px;
+}
+
+.route-search input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.route-search button {
+  padding: 8px 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.route-search button:hover {
+  background-color: #3e8e41;
+}
+
+.alert-panel {
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.alert-panel h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.alert-panel ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+.alert-panel li {
+  margin-bottom: 5px;
+}

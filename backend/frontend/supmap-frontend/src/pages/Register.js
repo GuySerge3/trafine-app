@@ -1,100 +1,110 @@
 import React, { useState } from "react";
-import { Button, Container, Form, Alert } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
+import {MapPin, Mail, Lock, User } from "lucide-react";
+import "../styles/Register.css";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
-
     if (password !== confirmPassword) {
-      return setErrorMessage("Les mots de passe ne correspondent pas.");
+      alert("Les mots de passe ne correspondent pas");
+      return;
     }
 
     try {
       const response = await fetch("http://localhost:3001/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erreur d'inscription");
-      }
+      if (!response.ok) throw new Error("Erreur lors de l'inscription");
 
-      setSuccessMessage("Inscription réussie. Vous pouvez vous connecter !");
-      setTimeout(() => navigate("/login"), 2000);
+      navigate("/login");
     } catch (error) {
-      setErrorMessage(error.message);
+      alert(error.message);
     }
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center min-vh-100">
-      <div className="card p-4" style={{ maxWidth: "400px", width: "100%" }}>
-        <h2 className="text-center mb-4">Inscription</h2>
+    <div className="register-wrapper">
+      {/* HEADER */}
+      <header className="header">
+        <div className="logo">
+          <User size={20} color="#fff" />
+          <MapPin size={20} color="#3b82f6" />
+          <span><strong>SUPMAP</strong></span>
+        </div>
+        <nav className="nav">
+         
+        </nav>
+      </header>
 
-        {errorMessage && (
-          <Alert variant="danger" className="text-center">{errorMessage}</Alert>
-        )}
-        {successMessage && (
-          <Alert variant="success" className="text-center">{successMessage}</Alert>
-        )}
+      {/* FORM */}
+      <main className="register-container">
+        <form className="register-card" onSubmit={handleRegister}>
+          <h2>Inscription</h2>
 
-        <Form onSubmit={handleRegister}>
-          <Form.Group controlId="email">
-            <Form.Label>Email</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Entrez votre email"
+          <div className="input-group">
+            <Mail className="icon" />
+            <input
+              type="email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-          </Form.Group>
+          </div>
 
-          <Form.Group controlId="password" className="mt-3">
-            <Form.Label>Mot de passe</Form.Label>
-            <Form.Control
+          <div className="input-group">
+            <Lock className="icon" />
+            <input
               type="password"
-              placeholder="Entrez un mot de passe"
+              placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </Form.Group>
+          </div>
 
-          <Form.Group controlId="confirmPassword" className="mt-3">
-            <Form.Label>Confirmer le mot de passe</Form.Label>
-            <Form.Control
+          <div className="input-group">
+            <Lock className="icon" />
+            <input
               type="password"
               placeholder="Confirmez le mot de passe"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-          </Form.Group>
+          </div>
 
-          <Button variant="success" type="submit" className="mt-4 w-100">
-            S'inscrire
-          </Button>
-        </Form>
+          <div className="checkbox-row">
+            <input type="checkbox" id="terms" required />
+            <label htmlFor="terms">
+              J’accepte les <span>Conditions générales</span>
+            </label>
+          </div>
 
-        <div className="text-center mt-3">
-          <span>Vous avez déjà un compte ? </span>
-          <Link to="/login">Connectez-vous</Link>
-        </div>
-      </div>
-    </Container>
+          <button type="submit" className="btn-register">
+            Créer un compte
+          </button>
+
+          <div className="login-link">
+            Vous avez déjà un compte ? <Link to="/login">Connectez-vous</Link>
+          </div>
+        </form>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <p>© {new Date().getFullYear()} SUPMAP. Tous droits réservés.</p>
+      </footer>
+    </div>
   );
 };
 
