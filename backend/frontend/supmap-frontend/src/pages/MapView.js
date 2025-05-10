@@ -26,6 +26,19 @@ const MapView = () => {
   const [currentPosition, setCurrentPosition] = useState(null)
   const [showInfo, setShowInfo] = useState(false)
 
+  const [incidents, setIncidents] = useState([])
+  const [showIncidentForm, setShowIncidentForm] = useState(false)
+  const [incidentType, setIncidentType] = useState("Accident")
+  const [incidentDescription, setIncidentDescription] = useState("")
+  const [nearbyAlerts, setNearbyAlerts] = useState([])
+
+  const incidentIcons = {
+  "Accident": "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+  "Embouteillage": "http://maps.google.com/mapfiles/ms/icons/orange-dot.png",
+  "Route barrée": "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+}
+
+
   const originRef = useRef(null)
   const destinationRef = useRef(null)
   const originAutocomplete = useRef(null)
@@ -188,7 +201,6 @@ const MapView = () => {
         <div className="locate-button" onClick={locateMe} title="Ma position">
           <LocateFixed size={20} />
         </div>
-        <div className="locate-label">Ma position</div>
       </div>
 
       {/* PANEL DES ÉTAPES */}
