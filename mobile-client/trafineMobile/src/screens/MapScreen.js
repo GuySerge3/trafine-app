@@ -84,6 +84,10 @@ const MapScreen = () => {
   useEffect(() => {
     const fetchRoute = async () => {
       try {
+        console.log("📲 Envoi au backend : ", {
+          from: [fromCoord.longitude, fromCoord.latitude],
+          to: [toCoord.longitude, toCoord.latitude],
+        });
         const res = await routeApi.post("/api/routes", {
           from: [fromCoord.longitude, fromCoord.latitude],
           to: [toCoord.longitude, toCoord.latitude],

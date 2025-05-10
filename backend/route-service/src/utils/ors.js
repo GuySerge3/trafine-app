@@ -1,4 +1,5 @@
 const axios = require("axios");
+const polyline = require("@mapbox/polyline"); // Assure-toi d'avoir fait: npm install @mapbox/polyline
 
 exports.getDirections = async (from, to, avoidTolls) => {
   try {
@@ -9,31 +10,51 @@ exports.getDirections = async (from, to, avoidTolls) => {
     };
 
     const data = {
-      coordinates: [[from.lng, from.lat], [to.lng, to.lat]],
+      coordinates: [from, to], // ex: [ [lon, lat], [lon, lat] ]
       instructions: true,
       ...(avoidTolls && { avoid_features: ["tollways"] }),
     };
 
+    console.log("🚀 Appel ORS avec données :", JSON.stringify(data));
+
     const response = await axios.post(url, data, { headers });
 
-    const feature = response.data.features[0];
-    const segment = feature.properties.segments[0];
+    // ✅ Sécurité renforcée : on vérifie toute la structure
+    const routeData = response.data?.routes?.[0];
 
-    // 📍 Format pour MapView (latitude/longitude)
-    const route = feature.geometry.coordinates.map(([lon, lat]) => ({
+    if (
+      !routeData ||
+      !Array.isArray(routeData.segments) ||
+      !routeData.segments[0] ||
+      typeof routeData.geometry !== "string"
+    ) {
+      console.error(
+        "[ORS ERROR] Réponse ORS invalide ou incomplète :",
+        response.data
+      );
+      throw new Error("ORS n'a pas renvoyé d'itinéraire exploitable.");
+    }
+
+    const decoded = polyline.decode(routeData.geometry);
+
+    const route = decoded.map(([lat, lon]) => ({
       latitude: lat,
       longitude: lon,
     }));
 
+    const segment = routeData.segments[0];
+
     return {
-      route, // tracé de la polyline
-      steps: segment.steps, // instructions étape par étape
+      route,
+      steps: segment.steps ?? [],
       distance_km: (segment.distance / 1000).toFixed(2),
       duration_min: (segment.duration / 60).toFixed(0),
-      incidents: [], // tu peux enrichir ici si tu veux détecter les zones à risque
+      incidents: [], // Tu peux enrichir ici
     };
   } catch (err) {
     console.error("[ORS ERROR]", err.response?.data || err.message);
-    throw new Error("Erreur lors de la récupération de l'itinéraire.");
+    throw new Error(
+      err.message || "Erreur lors de la récupération de l'itinéraire."
+    );
   }
 };
