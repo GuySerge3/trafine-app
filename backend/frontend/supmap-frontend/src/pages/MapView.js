@@ -1,13 +1,15 @@
 "use client"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useState, useRef, useEffect } from "react"
 import { GoogleMap, DirectionsRenderer, useJsApiLoader } from "@react-google-maps/api"
-import "../styles/MapView.css"
 import { MapPin, Bell, LogOut } from "lucide-react"
+import "../styles/MapView.css"
 
 const containerStyle = {
   width: "100%",
-  height: "100vh",
+  height: "100%",
+  borderRadius: "20px",
+  overflow: "hidden",
 }
 
 const center = { lat: 48.8566, lng: 2.3522 }
@@ -17,8 +19,10 @@ const MapView = () => {
   const [steps, setSteps] = useState([])
   const [origin, setOrigin] = useState("")
   const [destination, setDestination] = useState("")
+  const [theme, setTheme] = useState("light")
   const originRef = useRef(null)
   const destinationRef = useRef(null)
+  const navigate = useNavigate()
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -26,7 +30,7 @@ const MapView = () => {
   })
 
   useEffect(() => {
-    if (isLoaded && originRef.current && destinationRef.current) {
+    if (isLoaded) {
       new window.google.maps.places.Autocomplete(originRef.current)
       new window.google.maps.places.Autocomplete(destinationRef.current)
     }
@@ -59,11 +63,21 @@ const MapView = () => {
   }
 
   const handleStart = () => {
-    alert("Navigation démarrée !")
+    document.getElementById("steps-panel").classList.add("open")
+  }
+
+  const handleLogout = () => {
+    localStorage.clear()
+    navigate("/login")
+  }
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"))
+    document.body.className = theme === "light" ? "dark-mode" : ""
   }
 
   return (
-    <div className="map-container">
+    <div className={`map-container ${theme}`}>
       {/* NAVBAR */}
       <nav className="navbar">
         <div className="navbar-logo">
@@ -75,50 +89,43 @@ const MapView = () => {
           <li><Link to="/incidents">Incidents</Link></li>
           <li><Link to="/profil">Profil</Link></li>
           <li><Link to="/statistiques">Statistiques</Link></li>
-          <li><Link to="/profil">Profil</Link></li>
-          <li className="icon-item">
-            <Bell size={20} />
-          </li>
-          <li className="icon-item">
-            <LogOut size={20} />
-          </li>
-      </ul>
-
+          <li className="icon-item"><Bell size={20} /></li>
+          <li className="icon-item" onClick={handleLogout}><LogOut size={20} /></li>
+        </ul>
+        <div className="theme-switch">
+          <label className="switch">
+            <input type="checkbox" onChange={toggleTheme} />
+            <span className="slider round"></span>
+          </label>
+        </div>
       </nav>
 
-      {/* ITINERAIRE FORM */}
+      {/* FORMULAIRE */}
       <div className="route-search">
         <form onSubmit={handleRouteSearch}>
-          <input
-            type="text"
-            placeholder="Origine"
-            ref={originRef}
-            onChange={(e) => setOrigin(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Destination"
-            ref={destinationRef}
-            onChange={(e) => setDestination(e.target.value)}
-            required
-          />
+          <input type="text" placeholder="Origine" ref={originRef} onChange={(e) => setOrigin(e.target.value)} required />
+          <input type="text" placeholder="Destination" ref={destinationRef} onChange={(e) => setDestination(e.target.value)} required />
           <button type="submit">Rechercher</button>
         </form>
-        {directions && <button onClick={handleStart}>Démarrer</button>}
+        {directions && <button className="start-btn" onClick={handleStart}>Démarrer</button>}
       </div>
 
-      {/* MAP */}
-      {isLoaded && (
-        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={13}>
-          {directions && <DirectionsRenderer directions={directions} options={{ suppressMarkers: false }} />}
-        </GoogleMap>
-      )}
+      {/* CARTE */}
+      <div className="map-wrapper">
+        {isLoaded && (
+          <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={13}>
+            {directions && <DirectionsRenderer directions={directions} />}
+          </GoogleMap>
+        )}
+      </div>
 
-      {/* ALERT PANEL POUR LES ÉTAPES */}
+      {/* PANEL DES ÉTAPES */}
       {steps.length > 0 && (
-        <div className="alert-panel">
-          <h4>Étapes du trajet :</h4>
+        <div className="steps-panel" id="steps-panel">
+          <div className="steps-header">
+            <h4>Étapes du trajet :</h4>
+            <button onClick={() => document.getElementById("steps-panel").classList.remove("open")}>Fermer</button>
+          </div>
           <ul>
             {steps.map((step) => (
               <li key={step.id}>
