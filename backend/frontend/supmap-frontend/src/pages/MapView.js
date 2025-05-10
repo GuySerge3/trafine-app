@@ -1,4 +1,3 @@
-"use client"
 import { Link, useNavigate } from "react-router-dom"
 import { useState, useRef, useEffect } from "react"
 import { GoogleMap, DirectionsRenderer, useJsApiLoader } from "@react-google-maps/api"
@@ -17,12 +16,12 @@ const center = { lat: 48.8566, lng: 2.3522 }
 const MapView = () => {
   const [directions, setDirections] = useState(null)
   const [steps, setSteps] = useState([])
-  const [origin, setOrigin] = useState("")
-  const [destination, setDestination] = useState("")
   const [theme, setTheme] = useState("light")
   const originRef = useRef(null)
   const destinationRef = useRef(null)
   const navigate = useNavigate()
+  const originAutocomplete = useRef(null)
+  const destinationAutocomplete = useRef(null)
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -30,14 +29,26 @@ const MapView = () => {
   })
 
   useEffect(() => {
-    if (isLoaded) {
-      new window.google.maps.places.Autocomplete(originRef.current)
-      new window.google.maps.places.Autocomplete(destinationRef.current)
+    if (isLoaded && originRef.current && destinationRef.current) {
+      originAutocomplete.current = new window.google.maps.places.Autocomplete(originRef.current)
+      destinationAutocomplete.current = new window.google.maps.places.Autocomplete(destinationRef.current)
     }
   }, [isLoaded])
 
   const handleRouteSearch = (e) => {
     e.preventDefault()
+
+    const originPlace = originAutocomplete.current?.getPlace?.() ?? originAutocomplete.current?.getBounds()?.getCenter()
+    const destinationPlace = destinationAutocomplete.current?.getPlace?.() ?? destinationAutocomplete.current?.getBounds()?.getCenter()
+
+    const origin = originRef.current.value
+    const destination = destinationRef.current.value
+
+    if (!origin || !destination) {
+      alert("Veuillez saisir une origine et une destination valides.")
+      return
+    }
+
     const service = new window.google.maps.DirectionsService()
     service.route(
       {
@@ -58,7 +69,7 @@ const MapView = () => {
         } else {
           alert("Itinéraire non trouvé.")
         }
-      },
+      }
     )
   }
 
@@ -103,8 +114,8 @@ const MapView = () => {
       {/* FORMULAIRE */}
       <div className="route-search">
         <form onSubmit={handleRouteSearch}>
-          <input type="text" placeholder="Origine" ref={originRef} onChange={(e) => setOrigin(e.target.value)} required />
-          <input type="text" placeholder="Destination" ref={destinationRef} onChange={(e) => setDestination(e.target.value)} required />
+          <input type="text" placeholder="Origine" ref={originRef} required />
+          <input type="text" placeholder="Destination" ref={destinationRef} required />
           <button type="submit">Rechercher</button>
         </form>
         {directions && <button className="start-btn" onClick={handleStart}>Démarrer</button>}
