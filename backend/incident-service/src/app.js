@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const incidentRoutes = require('./routes/incident.routes');
 
 const app = express();
+const PORT = process.env.PORT || 3004; // ✅ Défini ici
 
 // Middleware pour parser du JSON
 app.use(express.json());
@@ -18,8 +19,8 @@ mongoose.connect(process.env.MONGO_URI, {
 })
   .then(() => {
     console.log('✅ Connected to MongoDB');
-    app.listen(process.env.PORT, () =>
-      console.log(`🚨 Incident Service running on port ${process.env.PORT}`)
-    );
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚨 Incident Service running on http://0.0.0.0:${PORT}`);
+    });
   })
   .catch(err => console.error('MongoDB error:', err));

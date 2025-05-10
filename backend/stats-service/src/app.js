@@ -5,6 +5,7 @@ const cors = require('cors');
 const statsRoutes = require('./routes/stats.routes');
 
 const app = express();
+const PORT = process.env.PORT || 3006; // ✅ Port par défaut
 
 app.use(cors());
 app.use(express.json());
@@ -13,8 +14,8 @@ app.use('/api/stats', statsRoutes);
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ Connected to MongoDB");
-    app.listen(process.env.PORT, () =>
-      console.log(`📊 Stats Service running on port ${process.env.PORT}`)
+    app.listen(PORT, '0.0.0.0', () =>
+      console.log(`📊 Stats Service running on http://0.0.0.0:${PORT}`)
     );
   })
   .catch(err => console.error('MongoDB error:', err));

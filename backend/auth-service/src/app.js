@@ -5,12 +5,13 @@ const authRoutes = require('./routes/auth.routes');
 const cors = require('cors');
 
 const app = express();
+const PORT = process.env.PORT || 3001; // ✅ ici
+
 app.use(express.json());
 
-// Autoriser le frontend (port 4000)
 app.use(cors({
   origin: 'http://localhost:4000',
-  credentials: true
+  credentials: true,
 }));
 
 app.use('/api/auth', authRoutes);
@@ -18,8 +19,8 @@ app.use('/api/auth', authRoutes);
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB');
-    app.listen(process.env.PORT, () =>
-      console.log(`🚀 Auth Service running on port ${process.env.PORT}`)
-    );
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Auth Service running on http://0.0.0.0:${PORT}`);
+    });
   })
   .catch((err) => console.error('MongoDB connection error:', err));
