@@ -33,3 +33,22 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getUserInfo = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('email createdAt');
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    res.status(200).json({
+      email: user.email,
+      createdAt: user.createdAt
+    });
+  } catch (err) {
+    console.error("❌ Erreur getUserInfo:", err.message);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+

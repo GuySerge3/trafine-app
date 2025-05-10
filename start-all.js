@@ -16,15 +16,7 @@ const services = [
 services.forEach(service => {
   const servicePath = path.join(__dirname, 'backend', service.name);
 
-  // Étape 1 : Installer les dépendances si package.json existe
-  if (fs.existsSync(path.join(servicePath, 'package.json'))) {
-    console.log(`📦 Installation des dépendances pour ${service.name}...`);
-    spawn('npm', ['install'], {
-      cwd: servicePath,
-      shell: true,
-      stdio: 'inherit'
-    });
-  }
+  
 
   // Étape 2 : Démarrer le service en mode dev
   const child = spawn('npm', ['run', 'dev'], {
