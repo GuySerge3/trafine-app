@@ -1,7 +1,13 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState, useRef, useEffect } from "react"
-import { GoogleMap, DirectionsRenderer, useJsApiLoader } from "@react-google-maps/api"
-import { MapPin, Bell, LogOut } from "lucide-react"
+import {
+  GoogleMap,
+  DirectionsRenderer,
+  useJsApiLoader,
+  Marker,
+  InfoWindow,
+} from "@react-google-maps/api"
+import { MapPin, Bell, LogOut, LocateFixed } from "lucide-react"
 import "../styles/MapView.css"
 
 const containerStyle = {
@@ -17,11 +23,15 @@ const MapView = () => {
   const [directions, setDirections] = useState(null)
   const [steps, setSteps] = useState([])
   const [theme, setTheme] = useState("light")
+  const [currentPosition, setCurrentPosition] = useState(null)
+  const [showInfo, setShowInfo] = useState(false)
+
   const originRef = useRef(null)
   const destinationRef = useRef(null)
-  const navigate = useNavigate()
   const originAutocomplete = useRef(null)
   const destinationAutocomplete = useRef(null)
+  const navigate = useNavigate()
+  const mapRef = useRef(null)
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -37,9 +47,6 @@ const MapView = () => {
 
   const handleRouteSearch = (e) => {
     e.preventDefault()
-
-    const originPlace = originAutocomplete.current?.getPlace?.() ?? originAutocomplete.current?.getBounds()?.getCenter()
-    const destinationPlace = destinationAutocomplete.current?.getPlace?.() ?? destinationAutocomplete.current?.getBounds()?.getCenter()
 
     const origin = originRef.current.value
     const destination = destinationRef.current.value
@@ -87,6 +94,26 @@ const MapView = () => {
     document.body.className = theme === "light" ? "dark-mode" : ""
   }
 
+  const locateMe = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          }
+          setCurrentPosition(pos)
+          mapRef.current?.panTo(pos)
+          mapRef.current?.setZoom(15)
+          setShowInfo(true)
+        },
+        () => {
+          alert("Erreur : Impossible d'obtenir votre position.")
+        }
+      )
+    }
+  }
+
   return (
     <div className={`map-container ${theme}`}>
       {/* NAVBAR */}
@@ -124,10 +151,44 @@ const MapView = () => {
       {/* CARTE */}
       <div className="map-wrapper">
         {isLoaded && (
-          <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={13}>
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={12}
+            onLoad={(map) => (mapRef.current = map)}
+          >
             {directions && <DirectionsRenderer directions={directions} />}
+
+            {currentPosition && (
+              <>
+                <Marker
+                  position={currentPosition}
+                  onClick={() => setShowInfo(true)}
+                  icon={{
+                    url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                  }}
+                />
+                {showInfo && (
+                  <InfoWindow
+                    position={{
+                      lat: currentPosition.lat + 0.0005, // légèrement au-dessus
+                      lng: currentPosition.lng,
+                    }}
+                    onCloseClick={() => setShowInfo(false)}
+                  >
+                    <div className="custom-info-window">📍 Vous êtes ici</div>
+                  </InfoWindow>
+                )}
+              </>
+            )}
           </GoogleMap>
         )}
+
+        {/* BOUTON GEOLOCALISATION */}
+        <div className="locate-button" onClick={locateMe} title="Ma position">
+          <LocateFixed size={20} />
+        </div>
+        <div className="locate-label">Ma position</div>
       </div>
 
       {/* PANEL DES ÉTAPES */}

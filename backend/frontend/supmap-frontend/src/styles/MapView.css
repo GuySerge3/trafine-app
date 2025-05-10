@@ -178,3 +178,42 @@ input:checked + .slider:before {
     transform: translate(-50%, 0);
   }
 }
+
+.locate-button {
+  position: absolute;
+  bottom: 110px;
+  left: 15px;
+  background-color: white;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 5;
+  transition: background-color 0.2s ease;
+}
+
+.locate-label {
+  position: absolute;
+  bottom: 20px;
+  left: 6px;
+  background-color: #ffffffee;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+  text-align: center;
+}
+
+.locate-button:hover {
+  background-color: #f0f0f0;
+}
+
+.custom-info-window {
+  background-color: #fff;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
