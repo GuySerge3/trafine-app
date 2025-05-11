@@ -331,6 +331,8 @@ const MapScreen = () => {
               navigation.navigate("Navigation", {
                 routeCoords,
                 steps,
+                duration_min: summary?.duration,
+                toCoord,
               });
             }}
           >

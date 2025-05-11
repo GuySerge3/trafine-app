@@ -60,7 +60,10 @@ exports.getRoute = async (req, res) => {
       distance_km: result.distance_km,
       duration_min: result.duration_min,
       incidents,
-      steps: result.steps.map((step) => step.instruction),
+      steps: result.steps.map((step) => ({
+        instruction: step.instruction,
+        way_points: step.way_points,
+      })),
       prediction,
     };
 
