@@ -28,7 +28,9 @@ const UserIncidentsScreen = () => {
     const fetchAllIncidents = async () => {
       try {
         const res = await incidentApi.get("/api/incidents");
-        setIncidents(res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+        setIncidents(
+          res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        );
       } catch (err) {
         console.error("❌ Erreur :", err.message);
       } finally {
@@ -41,9 +43,11 @@ const UserIncidentsScreen = () => {
 
   const renderIcon = (type) => {
     const lower = type.toLowerCase();
-    if (lower.includes("accident")) return <AlertTriangle size={24} color="orange" />;
+    if (lower.includes("accident"))
+      return <AlertTriangle size={24} color="orange" />;
     if (lower.includes("police")) return <ShieldAlert size={24} color="blue" />;
-    if (lower.includes("embouteillage")) return <TrafficCone size={24} color="gold" />;
+    if (lower.includes("embouteillage"))
+      return <TrafficCone size={24} color="gold" />;
     if (lower.includes("route")) return <Ban size={24} color="red" />;
     return <AlertCircle size={24} color="gray" />;
   };
@@ -57,7 +61,7 @@ const UserIncidentsScreen = () => {
         <Text style={styles.backButtonText}>← Retour</Text>
       </TouchableOpacity>
 
-      <Text style={styles.title}>Tous les incidents déclarés</Text>
+      <Text style={styles.title}>Tous les incidents signalés</Text>
 
       {loading ? (
         <ActivityIndicator size="large" color="#007AFF" />
@@ -69,7 +73,7 @@ const UserIncidentsScreen = () => {
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate("MainTabs", {
-                  screen: "MainTabs",  // Navigue vers l'écran Carte dans BottomTabNavigator
+                  screen: "MainTabs", // Navigue vers l'écran Carte dans BottomTabNavigator
                   params: {
                     focusIncident: {
                       lat: item.location.coordinates[1],

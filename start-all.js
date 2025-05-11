@@ -10,16 +10,15 @@ const services = [
   { name: 'incident-service', port: 3004 },
   { name: 'alert-service', port: 3005 },
   { name: 'stats-service', port: 3006 },
+  { name: 'websocket-service', port: 5000 }  // WebSocket ajouté à la liste
 ];
 
-// 🔁 Démarrer tous les services Node.js
+// 🔁 Démarrer tous les services Node.js avec npx
 services.forEach(service => {
   const servicePath = path.join(__dirname, 'backend', service.name);
 
-  
-
-  // Étape 2 : Démarrer le service en mode dev
-  const child = spawn('npm', ['run', 'dev'], {
+  // Démarrer le service en mode dev avec npx
+  const child = spawn('npx', ['npm', 'run', 'dev'], {
     cwd: servicePath,
     shell: true,
     stdio: 'inherit',
@@ -29,17 +28,17 @@ services.forEach(service => {
   console.log(`🚀 Lancement de ${service.name} depuis ${servicePath}`);
 });
 
-// 🚪 Démarrer le gateway-service
+// 🚪 Démarrer le gateway-service avec npx
 const gatewayPath = path.join(__dirname, 'backend', 'gateway');
 if (fs.existsSync(path.join(gatewayPath, 'package.json'))) {
   console.log(`📦 Installation des dépendances pour gateway-service...`);
-  spawn('npm', ['install'], {
+  spawn('npx', ['npm', 'install'], {
     cwd: gatewayPath,
     shell: true,
     stdio: 'inherit'
   });
 }
-const gateway = spawn('npm', ['run', 'dev'], {
+const gateway = spawn('npx', ['npm', 'run', 'dev'], {
   cwd: gatewayPath,
   shell: true,
   stdio: 'inherit',
@@ -57,3 +56,14 @@ const ai = spawn(python, ['-m', 'uvicorn', 'app:app', '--reload', '--port', '500
   env: { ...process.env }
 });
 console.log(`🤖 Lancement de ai-service depuis ${aiServicePath}`);
+
+// Exemple de lancement du service avec `cmd.exe` explicite pour WebSocket
+const websocketServicePath = path.join(__dirname, 'backend', 'websocket-service');
+const websocket = spawn('C:\\Windows\\System32\\cmd.exe', ['/d', '/s', '/c', 'npx npm run dev'], {
+  cwd: websocketServicePath,  // Assurez-vous que `index.js` est dans le bon dossier
+  shell: true,
+  stdio: 'inherit',
+  env: { ...process.env }
+});
+
+console.log(`🌐 Lancement du WebSocket service depuis ${websocketServicePath}`);
