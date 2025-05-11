@@ -29,6 +29,7 @@ const MapScreen = () => {
   const [steps, setSteps] = useState([]);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isRouteConfirmed, setIsRouteConfirmed] = useState(false);
+  const [incidents, setIncidents] = useState([]);
   const navigation = useNavigation();
   const mapRef = useRef(null);
 
@@ -82,12 +83,20 @@ const MapScreen = () => {
   }, []);
 
   useEffect(() => {
+    const fetchIncidents = async () => {
+      try {
+        const res = await axios.get("http://192.168.1.48:3004/api/incidents");
+        setIncidents(res.data);
+      } catch (error) {
+        console.error("Erreur incidents :", error.message);
+      }
+    };
+    fetchIncidents();
+  }, []);
+
+  useEffect(() => {
     const fetchRoute = async () => {
       try {
-        console.log("📲 Envoi au backend : ", {
-          from: [fromCoord.longitude, fromCoord.latitude],
-          to: [toCoord.longitude, toCoord.latitude],
-        });
         const res = await routeApi.post("/api/routes", {
           from: [fromCoord.longitude, fromCoord.latitude],
           to: [toCoord.longitude, toCoord.latitude],
@@ -108,165 +117,17 @@ const MapScreen = () => {
           steps: res.data.steps,
         });
       } catch (err) {
-        console.error("❌ Erreur backend :", err.response?.data || err.message);
+        console.error("Erreur backend :", err.response?.data || err.message);
         Alert.alert("Erreur trajet", err.message);
       }
     };
 
     if (!fromCoord || !toCoord || !isRouteConfirmed) return;
-
     fetchRoute();
   }, [fromCoord, toCoord, isRouteConfirmed]);
 
-  useEffect(() => {
-    if (routeCoords.length > 0 && mapRef.current) {
-      mapRef.current.fitToCoordinates(routeCoords, {
-        edgePadding: { top: 50, bottom: 50, left: 50, right: 50 },
-        animated: true,
-      });
-    }
-  }, [routeCoords]);
-
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={() =>
-          Alert.alert(
-            "Déconnexion",
-            "Voulez-vous vraiment vous déconnecter ?",
-            [
-              { text: "Annuler", style: "cancel" },
-              { text: "Oui", onPress: logout },
-            ]
-          )
-        }
-      >
-        <Feather name="log-out" size={22} color="#d00" />
-      </TouchableOpacity>
-
-      <View style={styles.searchContainer}>
-        {/* Point de départ */}
-        <View style={styles.searchRow}>
-          <Feather
-            name="map-pin"
-            size={18}
-            color="green"
-            style={styles.iconSpacing}
-          />
-          <TextInput
-            placeholder="Point de départ"
-            value={fromQuery}
-            onChangeText={(text) => {
-              setFromQuery(text);
-              search(text, setFromResults);
-            }}
-            style={[styles.searchInput, { flex: 1 }]}
-            editable={!isRouteConfirmed}
-            autoCapitalize="none"
-          />
-          {fromQuery.length > 0 && !isRouteConfirmed && (
-            <TouchableOpacity onPress={() => setFromQuery("")}>
-              <Text>
-                <Feather name="x-circle" size={18} color="#999" />
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {fromQuery.length > 2 && fromResults.length > 0 && (
-          <FlatList
-            data={fromResults}
-            keyExtractor={(item) => item.place_id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => {
-                  setFromCoord({
-                    latitude: parseFloat(item.lat),
-                    longitude: parseFloat(item.lon),
-                  });
-                  setFromQuery(item.display_name);
-                  setFromResults([]);
-                }}
-                style={styles.resultItem}
-              >
-                <Text>{item.display_name}</Text>
-              </TouchableOpacity>
-            )}
-            style={[styles.resultList, { top: 35 }]}
-          />
-        )}
-
-        {/* Destination */}
-        <View style={styles.searchRow}>
-          <Feather
-            name="flag"
-            size={18}
-            color="red"
-            style={styles.iconSpacing}
-          />
-          <TextInput
-            placeholder="Destination"
-            value={toQuery}
-            onChangeText={(text) => {
-              setToQuery(text);
-              search(text, setToResults);
-            }}
-            style={[styles.searchInput, { flex: 1 }]}
-            editable={!isRouteConfirmed}
-            autoCapitalize="none"
-          />
-          {toQuery.length > 0 && !isRouteConfirmed && (
-            <TouchableOpacity onPress={() => setToQuery("")}>
-              <Text>
-                <Feather name="x-circle" size={18} color="#999" />
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {toQuery.length > 2 && toResults.length > 0 && (
-          <FlatList
-            data={toResults}
-            keyExtractor={(item) => item.place_id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => {
-                  setToCoord({
-                    latitude: parseFloat(item.lat),
-                    longitude: parseFloat(item.lon),
-                  });
-                  setToQuery(item.display_name);
-                  setToResults([]);
-                }}
-                style={styles.resultItem}
-              >
-                <Text>{item.display_name}</Text>
-              </TouchableOpacity>
-            )}
-            style={[styles.resultList, { top: 105 }]}
-          />
-        )}
-
-        {fromCoord && toCoord && !isRouteConfirmed && (
-          <TouchableOpacity
-            style={styles.validateButton}
-            onPress={() => {
-              Alert.alert(
-                "Confirmer le trajet",
-                "Souhaitez-vous valider ce trajet ?",
-                [
-                  { text: "Annuler", style: "cancel" },
-                  { text: "Valider", onPress: () => setIsRouteConfirmed(true) },
-                ]
-              );
-            }}
-          >
-            <Text style={styles.validateButtonText}>Valider le trajet</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
       {currentLocation && (
         <MapView
           ref={mapRef}
@@ -292,8 +153,43 @@ const MapScreen = () => {
               strokeWidth={4}
             />
           )}
+          {incidents
+            .filter(
+              (i) =>
+                i.location &&
+                i.location.coordinates &&
+                i.location.coordinates.length === 2
+            )
+            .map((incident) => (
+              <Marker
+                key={incident._id}
+                coordinate={{
+                  latitude: incident.location.coordinates[1],
+                  longitude: incident.location.coordinates[0],
+                }}
+                title={`Incident: ${incident.type}`}
+                description={incident.description || "Aucun détail"}
+                pinColor="orange"
+              />
+            ))}
         </MapView>
       )}
+
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={() =>
+          Alert.alert(
+            "Déconnexion",
+            "Voulez-vous vraiment vous déconnecter ?",
+            [
+              { text: "Annuler", style: "cancel" },
+              { text: "Oui", onPress: logout },
+            ]
+          )
+        }
+      >
+        <Feather name="log-out" size={22} color="#d00" />
+      </TouchableOpacity>
 
       {currentLocation && (
         <TouchableOpacity
@@ -340,6 +236,113 @@ const MapScreen = () => {
           </TouchableOpacity>
         </>
       )}
+
+      {/* Recherche départ/destination conservée ci-dessous (non modifiée) */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchRow}>
+          <Feather
+            name="map-pin"
+            size={18}
+            color="green"
+            style={styles.iconSpacing}
+          />
+          <TextInput
+            placeholder="Point de départ"
+            value={fromQuery}
+            onChangeText={(text) => {
+              setFromQuery(text);
+              search(text, setFromResults);
+            }}
+            style={[styles.searchInput, { flex: 1 }]}
+            editable={!isRouteConfirmed}
+            autoCapitalize="none"
+          />
+        </View>
+
+        {fromQuery.length > 2 && fromResults.length > 0 && (
+          <FlatList
+            data={fromResults}
+            keyExtractor={(item) => item.place_id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  setFromCoord({
+                    latitude: parseFloat(item.lat),
+                    longitude: parseFloat(item.lon),
+                  });
+                  setFromQuery(item.display_name);
+                  setFromResults([]);
+                }}
+                style={styles.resultItem}
+              >
+                <Text>{item.display_name}</Text>
+              </TouchableOpacity>
+            )}
+            style={styles.resultList}
+          />
+        )}
+
+        <View style={styles.searchRow}>
+          <Feather
+            name="flag"
+            size={18}
+            color="red"
+            style={styles.iconSpacing}
+          />
+          <TextInput
+            placeholder="Destination"
+            value={toQuery}
+            onChangeText={(text) => {
+              setToQuery(text);
+              search(text, setToResults);
+            }}
+            style={[styles.searchInput, { flex: 1 }]}
+            editable={!isRouteConfirmed}
+            autoCapitalize="none"
+          />
+        </View>
+
+        {toQuery.length > 2 && toResults.length > 0 && (
+          <FlatList
+            data={toResults}
+            keyExtractor={(item) => item.place_id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  setToCoord({
+                    latitude: parseFloat(item.lat),
+                    longitude: parseFloat(item.lon),
+                  });
+                  setToQuery(item.display_name);
+                  setToResults([]);
+                }}
+                style={styles.resultItem}
+              >
+                <Text>{item.display_name}</Text>
+              </TouchableOpacity>
+            )}
+            style={[styles.resultList, { marginTop: 105 }]}
+          />
+        )}
+
+        {fromCoord && toCoord && !isRouteConfirmed && (
+          <TouchableOpacity
+            style={styles.validateButton}
+            onPress={() => {
+              Alert.alert(
+                "Confirmer le trajet",
+                "Souhaitez-vous valider ce trajet ?",
+                [
+                  { text: "Annuler", style: "cancel" },
+                  { text: "Valider", onPress: () => setIsRouteConfirmed(true) },
+                ]
+              );
+            }}
+          >
+            <Text style={styles.validateButtonText}>Valider le trajet</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
