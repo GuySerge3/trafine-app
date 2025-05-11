@@ -1,18 +1,10 @@
 import React, { useState, useContext } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TextInput, Button, Alert, ActivityIndicator } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import styles from "../styles/LoginScreen.styles";
-import api from "../api/axios";
-import { Feather } from "@expo/vector-icons"; 
+import { api } from "../api/axios";
+import { Feather } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
-
 
 const LoginScreen = ({ navigation }) => {
   const { login } = useContext(AuthContext);
@@ -34,7 +26,10 @@ const LoginScreen = ({ navigation }) => {
       });
 
       console.log("✅ Réponse login:", res.data);
-      login(res.data.token); // Stocke le token
+
+      // Stocker uniquement dans l'état global, pas dans AsyncStorage
+      login(res.data.token);  // Utiliser le token pour mettre à jour l'état dans AuthContext
+      navigation.navigate("MainTabs");  // Naviguer vers les écrans principaux
     } catch (err) {
       console.error("❌ Erreur de connexion:", err.response?.data || err.message);
       Alert.alert(
@@ -48,9 +43,6 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      
-      
-
       <Text style={styles.title}>Connexion à SupMap</Text>
 
       <TextInput

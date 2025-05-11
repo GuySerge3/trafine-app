@@ -1,35 +1,36 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  alertCard: {
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    elevation: 2,
-    padding: 16
-  },
   container: {
-    backgroundColor: '#fff',
     flex: 1,
-    padding: 24
+    backgroundColor: '#fff',
+    padding: 20,
   },
-  list: {
-    gap: 12
+  alertCard: {
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   message: {
     fontSize: 16,
-    fontWeight: '500'
+    color: '#333',
   },
   timestamp: {
-    color: '#777',
-    fontSize: 14,
-    marginTop: 4
+    fontSize: 12,
+    color: '#999',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16
-  }
+    marginBottom: 20,
+  },
 });
 
 export default styles;
-

@@ -1,36 +1,42 @@
-import React, { createContext, useState } from 'react';
-import api from '../api/axios';
+import React, { createContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // ✅ Stocke simplement le token reçu (ne fait plus d'appel à l'API ici)
-  const login = (token) => {
+  useEffect(() => {
+    const bootstrapAsync = async () => {
+      try {
+        // Réinitialiser le token au démarrage
+        await AsyncStorage.removeItem('token');
+        setUserToken(null);
+      } catch (e) {
+        console.error("Erreur lors de la réinitialisation du token:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    bootstrapAsync();
+  }, []);
+
+  const login = async (token) => {
     setUserToken(token);
-    console.log("✅ Token stocké dans le contexte");
+    await AsyncStorage.setItem('token', token);
+    console.log("✅ Token stocké dans le contexte et AsyncStorage");
   };
 
-  // ✅ Appel API pour l'inscription
-  const register = async (email, password) => {
-    try {
-      const res = await api.post('/api/auth/register', { email, password });
-      console.log('✅ Inscription réussie', res.data);
-    } catch (err) {
-      console.error('❌ Erreur d’inscription:', err.response?.data || err.message);
-      throw err;
-    }
-  };
-
-  // ✅ Déconnexion simple
-  const logout = () => {
+  const logout = async () => {
     setUserToken(null);
+    await AsyncStorage.removeItem('token');
     console.log("🔓 Déconnexion effectuée");
   };
 
   return (
-    <AuthContext.Provider value={{ userToken, login, register, logout }}>
+    <AuthContext.Provider value={{ userToken, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

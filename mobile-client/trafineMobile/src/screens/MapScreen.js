@@ -8,16 +8,24 @@ import {
   Alert,
 } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
+import {
+  AlertTriangle,
+  ShieldAlert,
+  TrafficCone,
+  Ban,
+  AlertCircle,
+} from "lucide-react-native";
 import * as Location from "expo-location";
 import routeApi from "../api/axiosRoute";
 import styles from "../styles/MapScreen.styles";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { AuthContext } from "../context/AuthContext";
 import { Feather } from "@expo/vector-icons";
 import axios from "axios";
 
 const MapScreen = () => {
   const { logout } = useContext(AuthContext);
+  const route = useRoute();
   const [fromQuery, setFromQuery] = useState("");
   const [toQuery, setToQuery] = useState("");
   const [fromResults, setFromResults] = useState([]);
@@ -126,6 +134,23 @@ const MapScreen = () => {
     fetchRoute();
   }, [fromCoord, toCoord, isRouteConfirmed]);
 
+  useEffect(() => {
+    const incident = route?.params?.focusIncident;
+    if (incident && mapRef.current) {
+      const { latitude, longitude } = incident;
+      mapRef.current.animateToRegion(
+        {
+          latitude,
+          longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000
+      );
+    }
+  }, [route?.params?.focusIncident]);
+
+
   return (
     <View style={styles.container}>
       {currentLocation && (
@@ -169,8 +194,19 @@ const MapScreen = () => {
                 }}
                 title={`Incident: ${incident.type}`}
                 description={incident.description || "Aucun détail"}
-                pinColor="orange"
-              />
+              >
+                {incident.type.toLowerCase().includes("accident") ? (
+                  <AlertTriangle size={30} color="orange" />
+                ) : incident.type.toLowerCase().includes("police") ? (
+                  <ShieldAlert size={30} color="blue" />
+                ) : incident.type.toLowerCase().includes("embouteillage") ? (
+                  <TrafficCone size={30} color="gold" />
+                ) : incident.type.toLowerCase().includes("route") ? (
+                  <Ban size={30} color="red" />
+                ) : (
+                  <AlertCircle size={30} color="gray" />
+                )}
+              </Marker>
             ))}
         </MapView>
       )}

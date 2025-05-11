@@ -3,13 +3,13 @@ import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import io from 'socket.io-client';
 import styles from '../styles/AlertScreen.styles';
 import axios from '../api/axios';
+import Icon from 'react-native-vector-icons/FontAwesome';  // Importer FontAwesome
 
 const AlertScreen = () => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Charger les alertes récentes
     const fetchAlerts = async () => {
       try {
         const res = await axios.get('/api/alerts/recent');
@@ -23,8 +23,7 @@ const AlertScreen = () => {
 
     fetchAlerts();
 
-    // 2. WebSocket via Gateway en HTTP
-    const socket = io('http://10.139.91.203:3000', {
+    const socket = io('http://10.139.91.203:5000', {
       transports: ['websocket']
     });
 
@@ -41,8 +40,14 @@ const AlertScreen = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.alertCard}>
-      <Text style={styles.message}>{item.message}</Text>
-      <Text style={styles.timestamp}>{new Date(item.createdAt).toLocaleString()}</Text>
+      <View style={styles.row}>
+        {/* Affichage de l'icône avec react-native-vector-icons */}
+        <Icon name="exclamation-circle" size={24} color="orange" />  {/* Exemple d'icône d'alerte */}
+        <View style={{ marginLeft: 10, flex: 1 }}>
+          <Text style={styles.message}>{item.message}</Text>
+          <Text style={styles.timestamp}>{new Date(item.createdAt).toLocaleString()}</Text>
+        </View>
+      </View>
     </View>
   );
 

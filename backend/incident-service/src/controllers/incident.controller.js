@@ -1,9 +1,40 @@
+const axios = require("axios");
 const Incident = require('../models/incident.model');
- 
 
 exports.reportIncident = async (req, res) => {
   try {
-    const incident = await Incident.create(req.body);
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Utilisateur non authentifié" });
+    }
+
+    const { type, description, location } = req.body;
+
+    // 📍 Appel à Nominatim pour récupérer l’adresse
+    let address = "";
+    try {
+      const { data } = await axios.get("https://nominatim.openstreetmap.org/reverse", {
+        params: {
+          lat: location.coordinates[1],
+          lon: location.coordinates[0],
+          format: "json"
+        },
+        headers: {
+          "User-Agent": "trafine-app"
+        }
+      });
+      address = data.display_name || "";
+    } catch (geoError) {
+      console.warn("❗ Reverse geocoding failed :", geoError.message);
+    }
+
+    const incident = await Incident.create({
+      type,
+      description,
+      location,
+      user: req.user.id,
+      address // ✅ Enregistrement de l'adresse
+    });
+
     res.status(201).json(incident);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -11,26 +42,35 @@ exports.reportIncident = async (req, res) => {
 };
 
 exports.getAll = async (req, res) => {
-  const incidents = await Incident.find();
-  res.json(incidents);
+  try {
+    const incidents = await Incident.find().sort({ createdAt: -1 });
+    res.json(incidents);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 exports.getIncidentsInBbox = async (req, res) => {
-  const [minLng, minLat, maxLng, maxLat] = req.query.bbox.split(',').map(Number);
+  try {
+    const [minLng, minLat, maxLng, maxLat] = req.query.bbox.split(',').map(Number);
 
-  const incidents = await Incident.find({
-    location: {
-      $geoWithin: {
-        $box: [
-          [minLng, minLat],
-          [maxLng, maxLat]
-        ]
+    const incidents = await Incident.find({
+      location: {
+        $geoWithin: {
+          $box: [
+            [minLng, minLat],
+            [maxLng, maxLat]
+          ]
+        }
       }
-    }
-  });
+    });
 
-  res.json(incidents);
+    res.json(incidents);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
+
 exports.deleteIncident = async (req, res) => {
   const { id } = req.params;
 
@@ -55,7 +95,6 @@ exports.confirmIncident = async (req, res) => {
     const incident = await Incident.findById(id);
     if (!incident) return res.status(404).json({ message: 'Incident not found' });
 
-   
     const alreadyConfirmed = incident.confirmations.find(c => c.userId === userId);
     if (alreadyConfirmed) {
       return res.status(400).json({ message: 'Vous avez déjà voté pour cet incident.' });
@@ -67,7 +106,6 @@ exports.confirmIncident = async (req, res) => {
     const totalYes = incident.confirmations.filter(c => c.confirmed).length;
     const totalNo = incident.confirmations.filter(c => !c.confirmed).length;
 
-   
     if (totalNo >= 3 && totalYes === 0) {
       await Incident.findByIdAndDelete(id);
       return res.json({ message: "Incident supprimé automatiquement (trop de refus)" });

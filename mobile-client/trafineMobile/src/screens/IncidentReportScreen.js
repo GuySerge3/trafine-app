@@ -11,6 +11,7 @@ import MapView, { Marker } from "react-native-maps";
 import styles from "../styles/IncidentReportScreen.styles";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
+import { incidentApi } from "../api/axios"; // ✅ Ajout pour faire l'appel POST
 
 const IncidentScreen = () => {
   const [type, setType] = useState("");
@@ -32,23 +33,38 @@ const IncidentScreen = () => {
     fetchLocation();
   }, []);
 
-  const handleReport = () => {
-    if (!type || !description) {
+  const handleReport = async () => {
+    if (!type || !description || !location) {
       Alert.alert("Erreur", "Veuillez remplir tous les champs.");
       return;
     }
 
-    console.log("🚨 Incident signalé :", { type, description, location });
-    Alert.alert("Merci", "Incident signalé avec succès !");
-    setType("");
-    setDescription("");
+    try {
+      const body = {
+        type,
+        description,
+        location: {
+          type: "Point",
+          coordinates: [location.longitude, location.latitude],
+        },
+      };
+
+      const res = await incidentApi.post("/api/incidents", body); // ✅ POST au backend
+      console.log("✅ Incident enregistré :", res.data);
+      Alert.alert("Merci", "Incident signalé avec succès !");
+      setType("");
+      setDescription("");
+    } catch (error) {
+      console.error("❌ Erreur lors de la création :", error.message);
+      Alert.alert("Erreur", "Impossible d'enregistrer l'incident.");
+    }
   };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => navigation.replace("MainTabs")} // 🔁 replace pour ne pas revenir à Incident après
+        onPress={() => navigation.replace("MainTabs")}
       >
         <Text style={styles.backButtonText}>← Retour</Text>
       </TouchableOpacity>
